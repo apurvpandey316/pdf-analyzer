@@ -1,0 +1,13 @@
+{
+  "name": "pdf-analyzer",
+  "private": true,
+  "description": "Turn PDFs into AI-generated flashcards and quizzes with spaced repetition",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "build": "npm ci --include=dev --prefix client && npm run build --prefix client && npm ci --omit=dev --prefix server",
+    "start": "npm start --prefix server",
+    "test": "npm test --prefix server"
+  }
+}
