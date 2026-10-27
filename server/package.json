@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/index.js",
     "start": "node --env-file-if-exists=.env src/index.js",
-    "test": "node --test"
+    "test": "node --test",
+    "grant-credits": "node --env-file-if-exists=.env scripts/grant-credits.js"
   },
   "keywords": [],
   "author": "",

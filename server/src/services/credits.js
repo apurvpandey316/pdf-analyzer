@@ -17,6 +17,34 @@ export async function spendCredits(userId, amount, description) {
   return user.credits
 }
 
+// Gives free credits to a user by email (used by scripts/grant-credits.js).
+// Returns the user's new balance.
+export async function grantCredits(email, amount, description = 'Free credits') {
+  const user = await User.findOneAndUpdate(
+    { email: email.toLowerCase().trim() },
+    { $inc: { credits: amount } },
+    { new: true },
+  )
+  if (!user) {
+    throw new HttpError(404, `No user with email ${email}`)
+  }
+  await Transaction.create({ user: user._id, type: 'grant', credits: amount, description })
+  return user.credits
+}
+
+// Reads `<email> <amount> [description...]` from the command line.
+export function parseGrantArgs(args) {
+  const [email, rawAmount, ...rest] = args
+  const amount = Number(rawAmount)
+  if (!email || !email.includes('@')) {
+    throw new Error('First argument must be the user\'s email')
+  }
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new Error('Second argument must be a positive whole number of credits')
+  }
+  return { email, amount, description: rest.join(' ') || undefined }
+}
+
 // Gives credits back when generation fails after they were deducted.
 export async function refundCredits(userId, amount, description) {
   await User.updateOne({ _id: userId }, { $inc: { credits: amount } })

@@ -30,6 +30,14 @@ npm run dev
 
 Open http://localhost:5173. Health check: http://localhost:5000/api/health
 
+## Give a user free credits
+
+```bash
+npm run grant-credits -- someone@example.com 50 Beta tester bonus
+```
+
+Adds the credits and records a `grant` transaction. The description is optional.
+
 ## Tests
 
 ```bash

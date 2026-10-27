@@ -6,7 +6,7 @@ const transactionSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     type: {
       type: String,
-      enum: ['signup_bonus', 'purchase', 'generation', 'refund'],
+      enum: ['signup_bonus', 'purchase', 'generation', 'refund', 'grant'],
       required: true,
     },
     credits: { type: Number, required: true }, // positive = added, negative = spent
