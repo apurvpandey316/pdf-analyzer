@@ -13,6 +13,7 @@ import deckRoutes from './routes/decks.js'
 import documentRoutes from './routes/documents.js'
 import healthRoutes from './routes/health.js'
 import modelRoutes from './routes/models.js'
+import paymentRoutes from './routes/payments.js'
 import reviewRoutes from './routes/review.js'
 import statsRoutes from './routes/stats.js'
 
@@ -22,10 +23,24 @@ const app = express()
 // so rate limits apply per user instead of to everyone at once.
 if (env.nodeEnv === 'production') app.set('trust proxy', 1)
 
-app.use(helmet())
+// Helmet's default Content Security Policy, plus the Razorpay Checkout script and popup.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'script-src': ["'self'", 'https://checkout.razorpay.com'],
+        'frame-src': ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com'],
+        'connect-src': ["'self'", 'https://api.razorpay.com', 'https://lumberjack.razorpay.com'],
+        'img-src': ["'self'", 'data:', 'https://*.razorpay.com'],
+      },
+    },
+  }),
+)
 // In development, accept the client on any localhost port (Vite may pick 5174 if 5173 is busy).
 const corsOrigin = env.nodeEnv === 'development' ? /^http:\/\/localhost:\d+$/ : env.clientUrl
 app.use(cors({ origin: corsOrigin, credentials: true }))
+// Razorpay signs the exact webhook bytes, so that route gets the raw body instead of parsed JSON.
+app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '1mb' }))
 app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
 
@@ -50,6 +65,7 @@ app.use('/api/decks', deckRoutes)
 app.use('/api/cards', cardRoutes)
 app.use('/api/review', reviewRoutes)
 app.use('/api/stats', statsRoutes)
+app.use('/api/payments', paymentRoutes)
 app.use('/api', notFound)
 
 // In production the server also serves the built React app (client/dist), so the website

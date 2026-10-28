@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import { GuestRoute, ProtectedRoute } from './components/RouteGuards'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
+import Credits from './pages/Credits'
 import Dashboard from './pages/Dashboard'
 import Deck from './pages/Deck'
 import Home from './pages/Home'
@@ -29,6 +30,7 @@ export default function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/upload" element={<Upload />} />
+                <Route path="/credits" element={<Credits />} />
                 <Route path="/decks/:id" element={<Deck />} />
                 <Route path="/decks/:id/review" element={<Review />} />
                 <Route path="/decks/:id/quiz" element={<Quiz />} />

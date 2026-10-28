@@ -47,6 +47,18 @@ Render's free plan has no fixed IP address, so Atlas must accept connections fro
 
 If the logs show `Missing environment variables: ...`, add that variable under the service's **Environment** tab and redeploy.
 
+## Step 3 - Turn on payments (Razorpay)
+
+1. In Render → **Environment**, add `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (Razorpay Dashboard → Account & Settings → API Keys; the same test keys as in `server/.env`).
+2. Razorpay Dashboard → **Account & Settings** → **Webhooks** → **Add New Webhook**:
+   - **Webhook URL:** `https://<your-app>.onrender.com/api/payments/webhook`
+   - **Secret:** any long random string
+   - **Active Events:** `payment.captured`
+3. Add that same secret in Render as `RAZORPAY_WEBHOOK_SECRET`, then redeploy.
+4. Buy a pack on the live site with a [Razorpay test card](https://razorpay.com/docs/payments/payments/test-card-details/). The credits should appear, and the webhook's delivery log in Razorpay should show `200`.
+
+Test keys and the webhook belong to Razorpay's **Test Mode**. For real money, switch to Live Mode, generate live keys, add the webhook again there, and replace the three values in Render.
+
 ## Updating the live site
 
 Push to the `main` branch on GitHub - Render rebuilds and redeploys automatically.

@@ -23,9 +23,12 @@ export default function Navbar() {
 
         {user ? (
           <div className="flex items-center gap-3 text-sm">
-            <span className="rounded-full bg-indigo-50 px-3 py-1 font-medium text-indigo-700">
+            <Link
+              to="/credits"
+              className="rounded-full bg-indigo-50 px-3 py-1 font-medium text-indigo-700 hover:bg-indigo-100"
+            >
               {user.credits} credits
-            </span>
+            </Link>
             <span className="hidden text-slate-600 sm:inline">{user.name}</span>
             <button
               onClick={handleLogout}

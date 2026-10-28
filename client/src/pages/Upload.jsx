@@ -145,7 +145,12 @@ export default function Upload() {
           </button>
         </div>
         {notEnoughCredits && (
-          <p className="text-sm text-amber-700">You don't have enough credits for this.</p>
+          <p className="text-sm text-amber-700">
+            You don't have enough credits for this.{' '}
+            <Link to="/credits" className="font-medium underline">
+              Buy credits
+            </Link>
+          </p>
         )}
       </form>
     </main>

@@ -1,3 +1,5 @@
+import mongoose from 'mongoose'
+import PaymentOrder from '../models/PaymentOrder.js'
 import Transaction from '../models/Transaction.js'
 import User from '../models/User.js'
 import HttpError from '../utils/httpError.js'
@@ -43,6 +45,38 @@ export function parseGrantArgs(args) {
     throw new Error('Second argument must be a positive whole number of credits')
   }
   return { email, amount, description: rest.join(' ') || undefined }
+}
+
+// Adds a paid order's credits exactly once. Both /payments/verify and the webhook call this,
+// often at nearly the same moment: only the call that flips the order from 'created' to 'paid'
+// adds credits. Everything runs in one MongoDB transaction, so it all happens or none of it does.
+// Returns true if this call added the credits, false if the order was already paid.
+export async function creditPaidOrder(razorpayOrderId, razorpayPaymentId) {
+  return mongoose.connection.transaction(async (session) => {
+    const order = await PaymentOrder.findOneAndUpdate(
+      { razorpayOrderId, status: 'created' },
+      { status: 'paid', razorpayPaymentId },
+      { new: true, session },
+    )
+    if (!order) return false
+
+    await User.updateOne({ _id: order.user }, { $inc: { credits: order.credits } }, { session })
+    await Transaction.create(
+      [
+        {
+          user: order.user,
+          type: 'purchase',
+          credits: order.credits,
+          description: `Bought ${order.credits} credits`,
+          amountPaise: order.amountPaise,
+          razorpayOrderId,
+          razorpayPaymentId,
+        },
+      ],
+      { session },
+    )
+    return true
+  })
 }
 
 // Gives credits back when generation fails after they were deducted.
